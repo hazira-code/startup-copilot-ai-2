@@ -84,10 +84,10 @@ export default function Dashboard({
     <div id="dashboard-view" className="flex-1 flex flex-col gap-6 p-6 overflow-y-auto select-none">
       
       {/* Header Panel */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 bg-gradient-to-r from-[#101827] to-[#0d1324] rounded-2xl border border-white/5 backdrop-blur-md">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 bg-gradient-to-br from-white/10 to-transparent rounded-2xl border border-white/10 backdrop-blur-md shadow-xl">
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-white">{startup.name || "Unnamed Startup Concept"}</h1>
+            <h1 className="text-3xl font-black uppercase italic tracking-tighter text-white">{startup.name || "Unnamed Startup Concept"}</h1>
             <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-[10px] font-mono text-cyan-400 tracking-wider flex items-center gap-1">
               <MapPin className="w-2.5 h-2.5" /> {startup.region || "Global"}
             </span>
@@ -135,10 +135,10 @@ export default function Dashboard({
           const offset = circumference - (ring.value / 100) * circumference;
 
           return (
-            <div key={idx} className="bg-[#101827] border border-white/5 rounded-2xl p-5 flex items-center justify-between backdrop-blur-lg">
+            <div key={idx} className="bg-white/5 border border-white/10 shadow-xl rounded-2xl p-5 flex items-center justify-between backdrop-blur-lg">
               <div>
-                <span className="text-xs font-medium text-slate-500">{ring.label}</span>
-                <span className="block text-2xl font-bold text-white mt-1">{ring.value} / 100</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{ring.label}</span>
+                <span className="block text-2xl font-extrabold text-white mt-1">{ring.value} / 100</span>
                 <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1 mt-1.5 bg-white/5 px-2 py-0.5 rounded-md w-max border border-white/5">
                   <ring.icon className="w-3 h-3 text-slate-400" /> VC Standard Verified
                 </span>
@@ -168,10 +168,10 @@ export default function Dashboard({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Recharts TAM/SAM/SOM Area Chart */}
-        <div className="bg-[#101827] border border-white/5 rounded-2xl p-6 flex flex-col justify-between">
-          <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+        <div className="bg-white/5 border border-white/10 shadow-xl rounded-2xl p-6 flex flex-col justify-between backdrop-blur-md">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
             <div>
-              <h3 className="text-sm font-semibold text-slate-200">Market Sizing Distribution</h3>
+              <h3 className="text-xs uppercase font-black tracking-wider text-slate-200">Market Sizing Distribution</h3>
               <p className="text-xs text-slate-500">TAM, SAM, SOM representation in USD Millions</p>
             </div>
             <span className="text-[10px] font-mono text-emerald-400 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
@@ -215,10 +215,10 @@ export default function Dashboard({
         </div>
 
         {/* Competitor Quadrant Coordinates Map */}
-        <div className="bg-[#101827] border border-white/5 rounded-2xl p-6 flex flex-col justify-between">
-          <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+        <div className="bg-white/5 border border-white/10 shadow-xl rounded-2xl p-6 flex flex-col justify-between backdrop-blur-md">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
             <div>
-              <h3 className="text-sm font-semibold text-slate-200">Competitor Positioning Quadrant</h3>
+              <h3 className="text-xs uppercase font-black tracking-wider text-slate-200">Competitor Positioning Quadrant</h3>
               <p className="text-xs text-slate-500">Innovation Quotient vs. Realized Market Share (%)</p>
             </div>
             <span className="text-[10px] font-mono text-cyan-400 px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30">
@@ -264,14 +264,14 @@ export default function Dashboard({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Hologram descriptor block */}
-        <div className="lg:col-span-7 bg-[#101827] border border-white/5 rounded-2xl p-6 flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-white/5 border border-white/10 shadow-xl rounded-2xl p-6 flex flex-col justify-between backdrop-blur-md">
           <div>
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded-xl text-purple-400">
                 <Fingerprint className="w-5 h-5 animate-pulse" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-slate-200">Startup DNA & Synthesis Fingerprint</h3>
+                <h3 className="text-xs uppercase font-black tracking-wider text-slate-200">Startup DNA & Synthesis Fingerprint</h3>
                 <p className="text-xs text-slate-500">Autonomous clinical AI architecture analysis</p>
               </div>
             </div>
@@ -293,8 +293,8 @@ export default function Dashboard({
         </div>
 
         {/* Recharts DNA Radar Chart */}
-        <div className="lg:col-span-5 bg-[#101827] border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center">
-          <span className="text-xs font-semibold text-slate-400 font-mono tracking-wider mb-2">6-AXIS CAPABILITY SPECIFICATION</span>
+        <div className="lg:col-span-5 bg-white/5 border border-white/10 shadow-xl rounded-2xl p-6 flex flex-col items-center justify-center backdrop-blur-md">
+          <span className="text-xs font-black text-slate-400 font-mono tracking-wider mb-2 uppercase">6-AXIS CAPABILITY SPECIFICATION</span>
           <div className="w-full h-80 flex items-center justify-center font-mono text-[10px]">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
@@ -311,8 +311,8 @@ export default function Dashboard({
 
       {/* Editing Concept Modal Overlay */}
       {isEditing && (
-        <div id="reconfigure-modal" className="fixed inset-0 bg-[#050816]/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-[#101827] border border-white/10 rounded-2xl w-full max-w-xl shadow-[0_10px_50px_rgba(0,0,0,0.8)] overflow-hidden">
+        <div id="reconfigure-modal" className="fixed inset-0 bg-[#02040a]/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-[#090e1a] border border-white/10 rounded-2xl w-full max-w-xl shadow-[0_10px_50px_rgba(0,0,0,0.8)] overflow-hidden">
             
             <div className="px-6 py-5 border-b border-white/5 bg-gradient-to-r from-blue-950/20 to-purple-950/20 flex items-center justify-between">
               <div className="flex items-center gap-2">

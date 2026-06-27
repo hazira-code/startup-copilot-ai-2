@@ -358,12 +358,13 @@ export default function App() {
   }
 
   return (
-    <div className="relative flex h-screen bg-[#050816] text-white overflow-hidden font-sans select-none">
+    <div className="relative flex h-screen bg-[#02040a] text-white overflow-hidden font-sans select-none">
       
-      {/* Aurora visual backup backdrop */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent blur-[100px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-tl from-cyan-500/10 via-blue-500/5 to-transparent blur-[100px]" />
+      {/* Animated Aurora Background Layers */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#3b82f615] rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#8b5cf610] rounded-full blur-[100px]"></div>
+        <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-[#06b6d405] rounded-full blur-[80px]"></div>
       </div>
 
       {/* Vertical Sidebar */}
@@ -374,14 +375,14 @@ export default function App() {
       />
 
       {/* Content Viewport */}
-      <div className="flex-1 flex flex-col h-full relative z-10 overflow-hidden bg-[#070b1a]/40">
+      <div className="flex-1 flex flex-col h-full relative z-10 overflow-hidden bg-transparent">
         
         {/* Top Control Bar with User profile mockup details */}
-        <header className="h-16 border-b border-white/5 px-6 flex items-center justify-between shrink-0 bg-[#0a0f1f]/50 backdrop-blur-md">
+        <header className="h-16 border-b border-white/10 px-6 flex items-center justify-between shrink-0 bg-white/5 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <span className="text-xs font-mono tracking-widest text-slate-500 uppercase">OS WORKSPACE STATUS:</span>
-            <span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full animate-pulse">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Secure Core online
+            <span className="flex items-center gap-1.5 text-green-400 text-[10px] font-mono font-bold uppercase tracking-wider bg-green-500/10 border border-green-500/30 px-2 py-0.5 rounded-full animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400" /> Secure Core online
             </span>
           </div>
 
@@ -400,7 +401,7 @@ export default function App() {
 
       {/* Global telemetry loading overlay for full scans */}
       {isScanning && scanProgressMessage && (
-        <div id="loading-overlay" className="fixed inset-0 bg-[#050816]/90 backdrop-blur-md flex flex-col items-center justify-center z-[100] p-4 select-none animate-fade-in">
+        <div id="loading-overlay" className="fixed inset-0 bg-[#02040a]/90 backdrop-blur-md flex flex-col items-center justify-center z-[100] p-4 select-none animate-fade-in">
           <div className="relative w-16 h-16 flex items-center justify-center mb-6">
             <RefreshCw className="w-14 h-14 text-cyan-400 animate-spin" style={{ animationDuration: "2.5s" }} />
             <Cpu className="absolute w-6 h-6 text-indigo-400 animate-pulse" />
