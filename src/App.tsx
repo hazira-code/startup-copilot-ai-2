@@ -323,6 +323,7 @@ export default function App() {
             onUpdateStartup={handleUpdateStartup}
             onTriggerAIScan={handleTriggerAIScan}
             isScanning={isScanning}
+            onNavigate={setActiveTab}
           />
         );
       case "validation":

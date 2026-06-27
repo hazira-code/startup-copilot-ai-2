@@ -26,7 +26,9 @@ import {
   Layers, 
   ChevronRight, 
   RefreshCw, 
-  HelpCircle 
+  HelpCircle,
+  Smartphone,
+  Globe
 } from "lucide-react";
 import { 
   StartupState, 
@@ -43,6 +45,7 @@ interface DashboardProps {
   onUpdateStartup: (newStartup: StartupState) => void;
   onTriggerAIScan: () => Promise<void>;
   isScanning: boolean;
+  onNavigate?: (tab: any) => void;
 }
 
 export default function Dashboard({ 
@@ -52,7 +55,8 @@ export default function Dashboard({
   competitors, 
   onUpdateStartup, 
   onTriggerAIScan, 
-  isScanning 
+  isScanning,
+  onNavigate
 }: DashboardProps) {
   
   const [isEditing, setIsEditing] = useState(false);
@@ -162,6 +166,69 @@ export default function Dashboard({
             </div>
           );
         })}
+      </div>
+
+      {/* App & Website Builder Quick Access Studios */}
+      <div className="bg-gradient-to-r from-blue-950/20 via-indigo-950/10 to-purple-950/20 border border-white/10 shadow-2xl rounded-2xl p-6 backdrop-blur-md">
+        <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/10 pb-4 mb-5 gap-3">
+          <div>
+            <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest block font-bold">Autonomous Design Studios</span>
+            <h3 className="text-sm font-black uppercase tracking-wider text-slate-200 mt-1">AI App & Website Builder Workspace</h3>
+          </div>
+          <span className="text-[10px] font-mono text-slate-400 bg-white/5 border border-white/5 px-2.5 py-1 rounded-md">
+            Status: Fully Integrated & Operational
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Card 1: App Builder */}
+          <div className="bg-white/5 hover:bg-white/[0.08] border border-white/5 hover:border-violet-500/30 rounded-xl p-5 flex flex-col justify-between transition-all duration-300 group">
+            <div className="flex gap-4">
+              <div className="p-3 bg-violet-500/10 border border-violet-500/20 rounded-xl text-violet-400 group-hover:scale-105 transition-transform">
+                <Smartphone className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">AI App Prototype Builder</h4>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  Design screens, define workflows, and test complete functional mockups of your mobile or desktop application in an interactive live canvas.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 pt-4 border-t border-white/5 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-500">Includes live responsive preview</span>
+              <button 
+                onClick={() => onNavigate && onNavigate("appbuilder")}
+                className="px-4 py-2 text-xs font-semibold bg-violet-500/20 hover:bg-violet-500 text-violet-300 hover:text-white rounded-lg transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
+              >
+                Launch App Builder <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+
+          {/* Card 2: Website Builder */}
+          <div className="bg-white/5 hover:bg-white/[0.08] border border-white/5 hover:border-blue-500/30 rounded-xl p-5 flex flex-col justify-between transition-all duration-300 group">
+            <div className="flex gap-4">
+              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 group-hover:scale-105 transition-transform">
+                <Globe className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">AI Landing Page Website Builder</h4>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  Generate beautiful responsive high-converting landing pages, input startup messaging, and download fully-formatted code packages.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 pt-4 border-t border-white/5 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-500">Generates downloadable static files</span>
+              <button 
+                onClick={() => onNavigate && onNavigate("webbuilder")}
+                className="px-4 py-2 text-xs font-semibold bg-blue-500/20 hover:bg-blue-500 text-blue-300 hover:text-white rounded-lg transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
+              >
+                Launch Website Builder <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Main Charts & Analytics Block */}
