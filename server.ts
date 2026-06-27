@@ -7,27 +7,39 @@ import { createServer as createViteServer } from "vite";
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const resolvedFilename = typeof __filename !== "undefined" ? __filename : fileURLToPath(import.meta.url);
+const resolvedDirname = typeof __dirname !== "undefined" ? __dirname : path.dirname(resolvedFilename);
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
 
-// Initialize Gemini SDK with User-Agent for telemetry
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
+// Lazy initialization of Gemini SDK with User-Agent for telemetry
+let aiInstance: GoogleGenAI | null = null;
+
+function getAI(): GoogleGenAI {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.warn("WARNING: GEMINI_API_KEY is not configured in environment variables.");
     }
+    aiInstance = new GoogleGenAI({
+      apiKey: apiKey || "placeholder-key-to-prevent-crash",
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
   }
-});
+  return aiInstance;
+}
 
 // Helper for generating with a specific prompt & schema
 async function callGemini(prompt: string, schema: any, systemInstruction?: string) {
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3.5-flash",
       contents: prompt,

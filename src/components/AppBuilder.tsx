@@ -21,6 +21,7 @@ import {
   Eye, 
   Laptop, 
   ListPlus,
+  GripVertical,
   RefreshCw,
   Info,
   ChevronRight,
@@ -120,6 +121,11 @@ export default function AppBuilder() {
   const [isAiGenerating, setIsAiGenerating] = useState<boolean>(false);
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<"editor" | "code" | "db">("editor");
+
+  // Drag and Drop States
+  const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false);
+  const [draggedElementId, setDraggedElementId] = useState<string | null>(null);
+  const [showSplitCode, setShowSplitCode] = useState<boolean>(true);
 
   // Simulated Database
   const [submittedData, setSubmittedData] = useState<Array<{ timestamp: string; collection: string; data: any }>>([
@@ -402,6 +408,51 @@ export default function AppBuilder() {
     }));
   };
 
+  const reorderElements = (draggedId: string, targetId: string) => {
+    setScreens(prev => prev.map(scr => {
+      if (scr.id === activeScreenId) {
+        const draggedIndex = scr.elements.findIndex(el => el.id === draggedId);
+        const targetIndex = scr.elements.findIndex(el => el.id === targetId);
+        if (draggedIndex === -1 || targetIndex === -1) return scr;
+        
+        const updated = [...scr.elements];
+        const [draggedItem] = updated.splice(draggedIndex, 1);
+        updated.splice(targetIndex, 0, draggedItem);
+        return { ...scr, elements: updated };
+      }
+      return scr;
+    }));
+    showToast("↕ Component order updated");
+  };
+
+  const addElementAtPosition = (type: AppElement["type"], index: number) => {
+    const newId = `el_${Date.now()}`;
+    let newEl: AppElement = {
+      id: newId,
+      type,
+      content: type === "button" ? "Click Action" : type === "heading" ? "Primary Title" : `Configure standard ${type} item content.`,
+      label: type === "input" ? "Form Label" : type === "metric" ? "KPI Metric Title" : undefined,
+      placeholder: type === "input" ? "Enter value..." : undefined,
+      imageUrl: type === "image" ? "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=60" : undefined,
+      actionType: type === "button" ? "toast" : undefined,
+      actionTarget: type === "button" ? "Task simulated successfully!" : undefined,
+      metricValue: type === "metric" ? "120" : type === "progress" ? "60" : undefined,
+      metricUnit: type === "metric" ? "units" : undefined,
+      isCompleted: type === "toggle" ? false : undefined
+    };
+
+    setScreens(prev => prev.map(scr => {
+      if (scr.id === activeScreenId) {
+        const updated = [...scr.elements];
+        updated.splice(index, 0, newEl);
+        return { ...scr, elements: updated };
+      }
+      return scr;
+    }));
+    setSelectedElementId(newId);
+    showToast(`Added ${type.toUpperCase()} component here`);
+  };
+
   const updateElementProperty = (field: keyof AppElement, value: any) => {
     if (!selectedElementId) return;
     setScreens(prev => prev.map(scr => {
@@ -650,67 +701,141 @@ export default function AppBuilder() {
 
           {/* Palette Panel - Add new component elements */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-xl backdrop-blur-md">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-200 mb-4 pb-2 border-b border-white/10 flex items-center gap-1.5">
-              <ListPlus className="w-4 h-4 text-violet-400" /> Elements Palette
-            </h3>
+            <div className="flex justify-between items-center mb-4 pb-2 border-b border-white/10">
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                <ListPlus className="w-4 h-4 text-violet-400" /> Elements Palette
+              </h3>
+              <span className="text-[9px] text-slate-500 font-mono">DRAG OR CLICK</span>
+            </div>
             
             <div className="grid grid-cols-2 gap-2">
-              <button 
+              <div 
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", "heading");
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
                 onClick={() => addElement("heading")}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer"
+                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-violet-500/30 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95 group relative overflow-hidden"
               >
+                <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <GripVertical className="w-2.5 h-2.5 text-slate-500" />
+                </div>
                 <Edit3 className="w-4 h-4 text-violet-400" />
                 <span className="font-mono text-[10px]">Title Block</span>
-              </button>
-              <button 
+              </div>
+
+              <div 
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", "text");
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
                 onClick={() => addElement("text")}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer"
+                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-violet-500/30 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95 group relative overflow-hidden"
               >
+                <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <GripVertical className="w-2.5 h-2.5 text-slate-500" />
+                </div>
                 <Info className="w-4 h-4 text-violet-400" />
                 <span className="font-mono text-[10px]">Paragraph text</span>
-              </button>
-              <button 
+              </div>
+
+              <div 
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", "button");
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
                 onClick={() => addElement("button")}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer"
+                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-violet-500/30 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95 group relative overflow-hidden"
               >
+                <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <GripVertical className="w-2.5 h-2.5 text-slate-500" />
+                </div>
                 <Play className="w-4 h-4 text-violet-400" />
                 <span className="font-mono text-[10px]">Action Button</span>
-              </button>
-              <button 
+              </div>
+
+              <div 
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", "input");
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
                 onClick={() => addElement("input")}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer"
+                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-violet-500/30 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95 group relative overflow-hidden"
               >
+                <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <GripVertical className="w-2.5 h-2.5 text-slate-500" />
+                </div>
                 <Settings className="w-4 h-4 text-violet-400" />
                 <span className="font-mono text-[10px]">Form Input</span>
-              </button>
-              <button 
+              </div>
+
+              <div 
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", "image");
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
                 onClick={() => addElement("image")}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer"
+                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-violet-500/30 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95 group relative overflow-hidden"
               >
+                <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <GripVertical className="w-2.5 h-2.5 text-slate-500" />
+                </div>
                 <Laptop className="w-4 h-4 text-violet-400" />
                 <span className="font-mono text-[10px]">Image Block</span>
-              </button>
-              <button 
+              </div>
+
+              <div 
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", "metric");
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
                 onClick={() => addElement("metric")}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer"
+                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-violet-500/30 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95 group relative overflow-hidden"
               >
+                <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <GripVertical className="w-2.5 h-2.5 text-slate-500" />
+                </div>
                 <Database className="w-4 h-4 text-violet-400" />
                 <span className="font-mono text-[10px]">Metric Card</span>
-              </button>
-              <button 
+              </div>
+
+              <div 
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", "progress");
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
                 onClick={() => addElement("progress")}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer"
+                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-violet-500/30 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95 group relative overflow-hidden"
               >
+                <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <GripVertical className="w-2.5 h-2.5 text-slate-500" />
+                </div>
                 <Layers className="w-4 h-4 text-violet-400" />
                 <span className="font-mono text-[10px]">Progress Bar</span>
-              </button>
-              <button 
+              </div>
+
+              <div 
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", "toggle");
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
                 onClick={() => addElement("toggle")}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer"
+                className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-violet-500/30 rounded-xl flex flex-col items-center gap-1.5 text-center text-xs text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95 group relative overflow-hidden"
               >
+                <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <GripVertical className="w-2.5 h-2.5 text-slate-500" />
+                </div>
                 <Check className="w-4 h-4 text-violet-400" />
                 <span className="font-mono text-[10px]">Toggle Switch</span>
-              </button>
+              </div>
             </div>
           </div>
         </div>
@@ -766,24 +891,73 @@ export default function AppBuilder() {
             </div>
 
             {/* Inner scrollable Canvas container */}
-            <div className="relative z-10 flex-1 overflow-y-auto px-2 py-4 flex flex-col gap-4">
+            <div 
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDraggingOver(true);
+              }}
+              onDragLeave={() => setIsDraggingOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDraggingOver(false);
+                const draggedId = e.dataTransfer.getData("elementId");
+                const type = e.dataTransfer.getData("text/plain") as AppElement["type"];
+                
+                if (draggedId) {
+                  // Reorder to the very end
+                  reorderElements(draggedId, activeScreen.elements[activeScreen.elements.length - 1]?.id);
+                } else if (type && ["text", "heading", "button", "input", "image", "card", "list", "progress", "metric", "toggle"].includes(type)) {
+                  addElement(type);
+                }
+              }}
+              className={`relative z-10 flex-1 overflow-y-auto px-2 py-4 flex flex-col gap-4 transition-all duration-200 ${
+                isDraggingOver ? "bg-violet-500/10 ring-2 ring-dashed ring-violet-500/50 rounded-2xl" : ""
+              }`}
+            >
               {activeScreen.elements.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
-                  <Smartphone className="w-8 h-8 text-slate-700 mb-2 animate-bounce" />
-                  <p className="text-xs text-slate-600">This screen is entirely blank. Choose an element on the left to deploy.</p>
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-white/5 rounded-3xl bg-white/5">
+                  <Smartphone className="w-10 h-10 text-violet-500/40 mb-3 animate-bounce" />
+                  <p className="text-xs text-slate-400 font-bold mb-1">Canvas is Empty</p>
+                  <p className="text-[11px] text-slate-500 leading-normal max-w-[200px]">Drag components from the Elements Palette and drop them here, or click them directly!</p>
                 </div>
               ) : (
                 activeScreen.elements.map((el, index) => {
                   const isSelected = selectedElementId === el.id && !interactiveMode;
+                  const isBeingDragged = draggedElementId === el.id;
                   return (
                     <div 
                       key={el.id}
+                      draggable={!interactiveMode}
+                      onDragStart={(e) => {
+                        setDraggedElementId(el.id);
+                        e.dataTransfer.setData("elementId", el.id);
+                        e.dataTransfer.effectAllowed = "move";
+                      }}
+                      onDragEnd={() => {
+                        setDraggedElementId(null);
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const draggedId = e.dataTransfer.getData("elementId");
+                        if (draggedId && draggedId !== el.id) {
+                          reorderElements(draggedId, el.id);
+                        } else {
+                          const type = e.dataTransfer.getData("text/plain") as AppElement["type"];
+                          if (type && ["text", "heading", "button", "input", "image", "card", "list", "progress", "metric", "toggle"].includes(type)) {
+                            addElementAtPosition(type, index);
+                          }
+                        }
+                      }}
                       onClick={() => handleSimulatorElementClick(el)}
                       className={`relative rounded-2xl transition-all cursor-pointer select-none group ${
                         isSelected 
                           ? "ring-2 ring-violet-500/80 bg-violet-950/20" 
                           : "hover:ring-1 hover:ring-white/10"
-                      }`}
+                      } ${isBeingDragged ? "opacity-40 scale-95 border-2 border-dashed border-violet-500" : ""}`}
                     >
                       {/* Interactive indicator bar */}
                       {!interactiveMode && (
@@ -922,8 +1096,24 @@ export default function AppBuilder() {
         </div>
 
         {/* R Pane (Grid cols 4) - Properties Inspector or Exporter */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
+        <div className="lg:col-span-4 flex flex-col gap-5">
           
+          {/* Split Mode Toggle bar */}
+          <div className="flex items-center justify-between px-2 bg-white/5 border border-white/10 rounded-xl p-2.5">
+            <span className="text-[10px] font-black tracking-widest text-slate-400 font-mono flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-ping" />
+              SPLIT ARCHITECTURE PREVIEW
+            </span>
+            <button 
+              onClick={() => setShowSplitCode(!showSplitCode)}
+              className={`px-2.5 py-1 rounded-lg text-[9px] font-mono font-black tracking-wider transition-all cursor-pointer ${
+                showSplitCode ? "bg-violet-600 text-white shadow-md shadow-violet-500/20" : "bg-white/5 text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              {showSplitCode ? "ON (SIDE-BY-SIDE)" : "OFF (TABS)"}
+            </button>
+          </div>
+
           {/* View Tab Selector */}
           <div className="bg-slate-900/80 border border-white/10 rounded-2xl p-1.5 flex gap-1 shadow-md">
             <button 
@@ -1152,6 +1342,35 @@ export default function AppBuilder() {
                   ))
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Live Code Preview Panel when showSplitCode is active and we are not already viewing the code tab */}
+          {showSplitCode && activeTab !== "code" && (
+            <div className="bg-gradient-to-br from-[#0c101b] to-black border border-violet-500/20 rounded-2xl p-5 shadow-2xl space-y-4">
+              <div className="flex justify-between items-center pb-2 border-b border-white/10">
+                <div className="flex items-center gap-1.5">
+                  <Code className="w-4 h-4 text-violet-400" />
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-200">
+                    Live Code Preview
+                  </span>
+                </div>
+                <button 
+                  onClick={copyCodeToClipboard}
+                  className="px-2.5 py-1 bg-violet-600/10 border border-violet-500/30 hover:bg-violet-600/30 text-violet-300 rounded-lg transition-colors flex items-center gap-1 text-[9px] font-black uppercase tracking-wider"
+                >
+                  {copiedCode ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                  {copiedCode ? "Copied!" : "Copy Code"}
+                </button>
+              </div>
+
+              <div className="bg-black/80 border border-white/5 p-4 rounded-xl max-h-72 overflow-y-auto font-mono text-[9px] text-emerald-400 leading-normal whitespace-pre pr-2 scrollbar-thin">
+                {getCompiledCode()}
+              </div>
+
+              <p className="text-[10px] text-slate-500 leading-relaxed font-mono">
+                ⚡ updates instantly with every drag, drop, and edit. Paste directly into your project.
+              </p>
             </div>
           )}
 
