@@ -23,6 +23,74 @@ export default function AIWorkspace({ startup, messages, onSendMessage, isThinki
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Speech Recognition States
+  const [isListening, setIsListening] = useState(false);
+  const [speechError, setSpeechError] = useState<string | null>(null);
+  const recognitionRef = useRef<any>(null);
+
+  // Setup Speech Recognition
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const rec = new SpeechRecognition();
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.lang = "en-US";
+
+      rec.onstart = () => {
+        setIsListening(true);
+        setSpeechError(null);
+      };
+
+      rec.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInputText(prev => prev ? prev + " " + transcript : transcript);
+      };
+
+      rec.onerror = (event: any) => {
+        console.error("Speech recognition error:", event.error);
+        if (event.error === "not-allowed") {
+          setSpeechError("Microphone access blocked. Enable microphone in your browser settings.");
+        } else if (event.error === "no-speech") {
+          setSpeechError("No speech detected. Please speak clearly into your mic.");
+        } else {
+          setSpeechError(`Speech recognition helper issue: ${event.error}`);
+        }
+        setIsListening(false);
+      };
+
+      rec.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = rec;
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      setSpeechError("Speech recognition is not fully supported in this browser version. Try Chrome, Safari, or Edge.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      try {
+        setSpeechError(null);
+        recognitionRef.current.start();
+      } catch (err) {
+        console.error("Failed to start speech recognition:", err);
+      }
+    }
+  };
+
   // Auto scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -196,24 +264,50 @@ export default function AIWorkspace({ startup, messages, onSendMessage, isThinki
         )}
 
         <div className="relative flex items-center gap-3">
-          <input 
-            type="text"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isThinking}
-            placeholder={`Instruct JARVIS-Copilot regarding "${startup.name}"...`}
-            className="w-full bg-[#0d1324] border border-white/10 rounded-2xl pl-4 pr-14 py-3.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
-          />
-          
           <button
-            onClick={handleSend}
-            disabled={isThinking || !inputText.trim()}
-            className="absolute right-2 p-2.5 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 text-white hover:scale-105 active:scale-95 disabled:opacity-30 disabled:scale-100 transition-all cursor-pointer shadow-md"
+            onClick={toggleListening}
+            disabled={isThinking}
+            className={`p-3.5 rounded-2xl border transition-all cursor-pointer shrink-0 ${
+              isListening 
+                ? "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse ring-4 ring-red-500/10" 
+                : "bg-[#0d1324] border-white/10 text-slate-400 hover:text-white hover:border-cyan-500/30"
+            }`}
+            title="Speak your ideas directly"
           >
-            <Send className="w-4 h-4" />
+            <Mic className={`w-4 h-4 ${isListening ? "animate-bounce" : ""}`} />
           </button>
+
+          <div className="relative flex-1 flex items-center">
+            <input 
+              type="text"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={isThinking}
+              placeholder={isListening ? "Listening... Speak your startup idea clearly..." : `Instruct JARVIS-Copilot regarding "${startup.name}"...`}
+              className="w-full bg-[#0d1324] border border-white/10 rounded-2xl pl-4 pr-14 py-3.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+            />
+            
+            <button
+              onClick={handleSend}
+              disabled={isThinking || !inputText.trim()}
+              className="absolute right-2 p-2.5 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 text-white hover:scale-105 active:scale-95 disabled:opacity-30 disabled:scale-100 transition-all cursor-pointer shadow-md"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
         </div>
+
+        {speechError && (
+          <p className="text-[10px] text-red-400/90 mt-2.5 flex items-center gap-1 font-mono">
+            <span>⚠️</span> {speechError}
+          </p>
+        )}
+        {isListening && (
+          <p className="text-[10px] text-cyan-400 mt-2.5 flex items-center gap-1.5 font-mono animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" /> System listening... Speak your B2B model, competitor notes, or pitch deck plans now.
+          </p>
+        )}
       </div>
 
     </div>
