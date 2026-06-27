@@ -4,6 +4,7 @@ import { Sparkles, Cpu, LogIn, Github, Mail, AlertCircle, RefreshCw } from "luci
 // Subcomponents
 import Sidebar, { NavItem } from "./components/Sidebar";
 import LandingPage from "./components/LandingPage";
+import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
 import AIWorkspace from "./components/AIWorkspace";
 import ValidationView from "./components/ValidationView";
@@ -55,6 +56,8 @@ export default function App() {
   
   // App routing and auth
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showAuthPage, setShowAuthPage] = useState(false);
+  const [userEmail, setUserEmail] = useState("abdulmalik30299@gmail.com");
   const [authMethod, setAuthMethod] = useState<"google" | "github" | "email" | null>(null);
   const [activeTab, setActiveTab] = useState<NavItem>("dashboard");
 
@@ -360,7 +363,26 @@ export default function App() {
 
   // Auth/Landing Gate
   if (!isAuthenticated) {
-    return <LandingPage onStart={() => handleAuth("google")} />;
+    if (showAuthPage) {
+      return (
+        <AuthPage 
+          onLoginSuccess={(email, provider, chosenStartupName) => {
+            setUserEmail(email);
+            setAuthMethod(provider as any);
+            setIsAuthenticated(true);
+            setShowAuthPage(false);
+            if (chosenStartupName) {
+              setStartup(prev => ({
+                ...prev,
+                name: chosenStartupName
+              }));
+            }
+          }}
+          onBackToLanding={() => setShowAuthPage(false)}
+        />
+      );
+    }
+    return <LandingPage onStart={() => setShowAuthPage(true)} />;
   }
 
   return (
@@ -393,9 +415,9 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">abdulmalik30299@gmail.com</span>
-            <div className="w-8 h-8 rounded-full border border-white/10 overflow-hidden shadow-md flex items-center justify-center bg-gradient-to-tr from-indigo-500 to-pink-500 font-bold text-[10px] text-white tracking-tight">
-              AM
+            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{userEmail}</span>
+            <div className="w-8 h-8 rounded-full border border-white/10 overflow-hidden shadow-md flex items-center justify-center bg-gradient-to-tr from-indigo-500 to-pink-500 font-bold text-[10px] text-white tracking-tight uppercase">
+              {userEmail ? userEmail.slice(0, 2) : "AM"}
             </div>
           </div>
         </header>
