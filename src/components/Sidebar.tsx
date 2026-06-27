@@ -10,7 +10,9 @@ import {
   Layers, 
   Milestone, 
   MessageSquare,
-  LogOut
+  LogOut,
+  Smartphone,
+  Globe
 } from "lucide-react";
 
 export type NavItem = 
@@ -24,7 +26,9 @@ export type NavItem =
   | 'pitchdeck'
   | 'roadmap'
   | 'investors'
-  | 'mentor';
+  | 'mentor'
+  | 'appbuilder'
+  | 'webbuilder';
 
 interface SidebarProps {
   activeItem: NavItem;
@@ -45,6 +49,8 @@ export default function Sidebar({ activeItem, onNavigate, onLogout }: SidebarPro
     { id: 'pitchdeck', label: 'Pitch Deck Studio', icon: FileText, color: 'text-orange-400' },
     { id: 'roadmap', label: 'Execution Roadmap', icon: Milestone, color: 'text-teal-400' },
     { id: 'investors', label: 'Investor Discovery', icon: Compass, color: 'text-red-400' },
+    { id: 'appbuilder', label: 'App Builder', icon: Smartphone, color: 'text-violet-400' },
+    { id: 'webbuilder', label: 'Website Builder', icon: Globe, color: 'text-blue-400' },
     { id: 'mentor', label: 'AI Startup Mentor', icon: MessageSquare, color: 'text-fuchsia-400' }
   ];
 

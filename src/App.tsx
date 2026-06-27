@@ -15,6 +15,8 @@ import BusinessPlanView from "./components/BusinessPlanView";
 import PitchDeckStudio from "./components/PitchDeckStudio";
 import RoadmapView from "./components/RoadmapView";
 import InvestorDiscovery from "./components/InvestorDiscovery";
+import AppBuilder from "./components/AppBuilder";
+import WebBuilder from "./components/WebBuilder";
 
 // Mock template fallback
 import { 
@@ -338,6 +340,10 @@ export default function App() {
         return <RoadmapView roadmap={roadmap} />;
       case "investors":
         return <InvestorDiscovery investorDiscovery={investorDiscovery} startupName={startup.name} />;
+      case "appbuilder":
+        return <AppBuilder />;
+      case "webbuilder":
+        return <WebBuilder />;
       case "mentor":
         return (
           <AIWorkspace 
